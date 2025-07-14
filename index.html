@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Outil MAC & Notes - Harte Kervin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      color: blue;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .mac-section {
+      margin-bottom: 30px;
+    }
+
+    .mac-section label {
+      font-weight: bold;
+    }
+
+    .mac-section input {
+      padding: 10px;
+      width: 70%;
+      font-size: 16px;
+    }
+
+    .mac-value {
+      color: red;
+      font-size: 18px;
+      margin-top: 10px;
+      display: block;
+    }
+
+    .buttons {
+      margin-top: 10px;
+    }
+
+    .buttons button {
+      margin-right: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    .note-section {
+      margin-bottom: 30px;
+    }
+
+    .note-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: blue;
+      margin-bottom: 5px;
+    }
+
+    .note-general textarea {
+      height: 150px;
+    }
+
+    .note-specific textarea {
+      height: 100px;
+      width: 80%;
+    }
+
+    .photo-section input {
+      margin-top: 10px;
+    }
+
+    .photo-section img {
+      max-width: 100px;
+      max-height: 100px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .photo-section div {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 10px;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Harte Kervin - Assistant Technicien</h1>
+
+    <div class="mac-section">
+      <label for="macInput">Adresse MAC :</label><br>
+      <input id="macInput" placeholder="ex: a1b2c3d4e5f6" oninput="formatMac()">
+      <div class="buttons">
+        <button onclick="pasteMac()">Coller MAC</button>
+        <button onclick="copyMac()">Copier MAC</button>
+      </div>
+      <span class="mac-value" id="macFormatted"></span>
+    </div>
+
+    <div class="note-section note-general">
+      <div class="note-title">Note générale</div>
+      <textarea id="note1" spellcheck="true" placeholder="Entrez vos notes ici..."></textarea>
+      <div class="buttons">
+        <button onclick="copyNote('note1')">Copier</button>
+        <button onclick="clearNote('note1')">Effacer</button>
+      </div>
+    </div>
+
+    <div class="note-section note-specific">
+      <div class="note-title">Note technique (MAC + numéro client, etc.)</div>
+      <textarea id="note2" spellcheck="true" placeholder="Copiez les infos techniques ici..."></textarea>
+      <div class="buttons">
+        <button onclick="copyNote('note2')">Copier</button>
+        <button onclick="clearNote('note2')">Effacer</button>
+      </div>
+    </div>
+
+    <div class="photo-section">
+      <h2 style="color:green;">Importer des photos depuis téléphone</h2>
+      <input type="file" id="photoInput" accept="image/*" multiple>
+      <div id="preview" style="display:flex; flex-wrap: wrap; gap:10px; margin-top:15px;"></div>
+    </div>
+  </div>
+
+  <script>
+    function formatMac() {
+      let input = document.getElementById("macInput").value.replace(/[^a-fA-F0-9]/g, '');
+      let mac = input.match(/.{1,2}/g)?.join(':').toUpperCase() || '';
+      document.getElementById("macFormatted").textContent = mac;
+    }
+
+    function copyMac() {
+      const macText = document.getElementById("macFormatted").textContent;
+      navigator.clipboard.writeText(macText);
+    }
+
+    function pasteMac() {
+      navigator.clipboard.readText().then(text => {
+        document.getElementById("macInput").value = text;
+        formatMac();
+      });
+    }
+
+    function copyNote(id) {
+      const text = document.getElementById(id).value;
+      navigator.clipboard.writeText(text);
+    }
+
+    function clearNote(id) {
+      document.getElementById(id).value = '';
+    }
+
+    document.getElementById('photoInput').addEventListener('change', function(event) {
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+      const files = event.target.files;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const container = document.createElement('div');
+
+          const img = document.createElement('img');
+          img.src = e.target.result;
+
+          const download = document.createElement('a');
+          download.href = e.target.result;
+          download.download = file.name;
+          download.textContent = "📥 Télécharger";
+          download.style.textDecoration = 'none';
+          download.style.color = '#007bff';
+
+          container.appendChild(img);
+          container.appendChild(download);
+          preview.appendChild(container);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  </script>
+</body>
+</html>
